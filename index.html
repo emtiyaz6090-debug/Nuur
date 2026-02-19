@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deen - Ramadan 2026 Special</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&family=Amiri&display=swap');
+        body { font-family: 'Hind Siliguri', sans-serif; background-color: #F8FAFC; overflow-x: hidden; }
+        .header-gradient { background: linear-gradient(135deg, #1e1b4b 0%, #4338ca 100%); border-bottom-left-radius: 40px; border-bottom-right-radius: 40px; }
+        .page { display: none; min-height: 100vh; padding-bottom: 120px; }
+        .page.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .font-arabic { font-family: 'Amiri', serif; }
+        .nav-active { color: #fff !important; background: rgba(255,255,255,0.1); border-radius: 20px; }
+        #smart-alert {
+            position: fixed; top: -100px; left: 50%; transform: translateX(-50%);
+            width: 90%; max-width: 350px; background: rgba(30, 27, 75, 0.95);
+            color: white; padding: 15px; border-radius: 25px; z-index: 2000;
+            backdrop-filter: blur(10px); transition: 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            display: flex; align-items: center; gap: 12px; box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+        #smart-alert.show { top: 20px; }
+    </style>
+</head>
+<body class="max-w-md mx-auto shadow-2xl bg-white relative">
+
+    <div id="smart-alert">
+        <div class="w-3 h-3 bg-red-500 rounded-full animate-ping"></div>
+        <div class="flex-1">
+            <h4 id="alert-title" class="text-xs font-bold text-orange-400">অ্যালার্ট</h4>
+            <p id="alert-msg" class="text-[11px]">সময় হয়ে যাচ্ছে!</p>
+        </div>
+        <button onclick="stopAlarm()" class="bg-white/10 p-2 rounded-full text-xs">বন্ধ করুন</button>
+    </div>
+
+    <audio id="alarm-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" loop></audio>
+
+    <div id="page-home" class="page active">
+        <div class="header-gradient pt-10 pb-28 px-6 text-white text-center">
+            <h1 class="text-2xl font-black italic tracking-tighter mb-4">DEEN</h1>
+            <div class="space-y-1">
+                <p class="text-xl font-bold text-orange-300">১লা রমজান, ১৪৪৭ হিজরি</p>
+                <p class="text-xs opacity-70">১৯ ফেব্রুয়ারি, ২০২৬ (বৃহস্পতিবার)</p>
+                <div class="mt-4 bg-red-500 text-white text-[12px] font-bold px-4 py-1 rounded-full inline-block shadow-lg">
+                    🌙 আজ প্রথম রোজার রাত (লক্ষ্মীপুর)
+                </div>
+            </div>
+        </div>
+
+        <div class="px-5 -mt-16">
+            <div class="bg-white p-6 rounded-[30px] shadow-xl border border-gray-100">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-indigo-600 font-bold text-[10px] uppercase">পরবর্তী নামাজ</p>
+                        <h2 id="next-prayer-time" class="text-4xl font-black text-slate-900 my-1">--:-- --</h2>
+                        <p id="next-prayer-name" class="text-sm font-bold text-gray-400">লোড হচ্ছে...</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-xs font-bold text-indigo-900"><i class="fa-solid fa-location-dot"></i> লক্ষ্মীপুর</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3 mt-6">
+                    <div class="bg-blue-50 p-3 rounded-2xl border border-blue-100">
+                        <p class="text-[10px] font-bold text-blue-500 uppercase">সেহরি শেষ</p>
+                        <p id="suhur-time" class="font-black text-blue-900 text-lg">০৫:০৬ AM</p>
+                    </div>
+                    <div class="bg-orange-50 p-3 rounded-2xl border border-orange-100">
+                        <p class="text-[10px] font-bold text-orange-600 uppercase">ইফতার</p>
+                        <p id="iftar-time" class="font-black text-orange-900 text-lg">০৬:০২ PM</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="px-5 mt-8">
+            <h3 class="font-bold text-slate-800 mb-4 px-2">পূর্ণাঙ্গ রমজান ক্যালেন্ডার ২০২৬</h3>
+            <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+                <table class="w-full text-center text-sm">
+                    <thead class="bg-indigo-50 text-indigo-900 font-bold">
+                        <tr>
+                            <th class="py-3">রোজা</th>
+                            <th>তারিখ</th>
+                            <th>সেহরি</th>
+                            <th>ইফতার</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ramadan-table-body" class="text-gray-600">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="page-quran" class="page px-5 pt-8">
+        <h2 class="text-2xl font-black mb-6">আল-কুরআন</h2>
+        <div id="surah-list" class="space-y-3"></div>
+    </div>
+
+    <div id="page-names" class="page px-5 pt-8">
+        <h2 class="text-2xl font-black mb-6">আল্লাহর ৯৯ নাম</h2>
+        <div id="names-grid" class="grid grid-cols-2 gap-3"></div>
+    </div>
+
+    <div id="surah-detail" class="fixed inset-0 bg-white z-[100] hidden overflow-y-auto p-6">
+        <div class="flex justify-between items-center mb-6 sticky top-0 bg-white py-2 border-b">
+            <button onclick="closeSurah()" class="text-indigo-600 font-bold"><i class="fa-solid fa-arrow-left mr-2"></i>পিছনে</button>
+            <h2 id="surah-title" class="text-lg font-bold"></h2>
+            <div class="w-8"></div>
+        </div>
+        <div class="bg-indigo-50 p-6 rounded-3xl mb-8 text-center">
+            <audio id="surah-audio" class="hidden"></audio>
+            <button id="play-btn" onclick="toggleAudio()" class="w-16 h-16 bg-indigo-600 text-white rounded-full flex items-center justify-center mx-auto shadow-lg">
+                <i class="fa-solid fa-play text-xl"></i>
+            </button>
+            <p class="text-[10px] mt-2 text-indigo-400 font-bold">তেলাওয়াত: Mishary Al-Afasy</p>
+        </div>
+        <div id="ayats" class="space-y-10 text-right"></div>
+    </div>
+
+    <div class="text-center py-4 text-[10px] text-gray-400 font-bold bg-white">
+        ©emti
+    </div>
+
+    <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-sm bg-indigo-950/98 backdrop-blur-lg rounded-[30px] flex justify-around items-center py-3 z-50 shadow-2xl">
+        <button onclick="switchPage('home')" id="nav-home" class="nav-btn text-white/40 nav-active p-3"><i class="fa-solid fa-calendar-days"></i></button>
+        <button onclick="openQuran()" id="nav-quran" class="nav-btn text-white/40 p-3"><i class="fa-solid fa-book-quran"></i></button>
+        <button onclick="switchPage('names')" id="nav-names" class="nav-btn text-white/40 p-3"><i class="fa-solid fa-star-and-crescent"></i></button>
+    </nav>
+
+    <script>
+        // 30 Days Ramadan Data (Simplified for Lakshmipur)
+        const ramadanData = [
+            {day: 1, date: "২০ ফেব", sehri: "০৫:০৬ AM", iftar: "০৬:০২ PM"},
+            {day: 2, date: "২১ ফেব", sehri: "০৫:০৫ AM", iftar: "০৬:০২ PM"},
+            {day: 3, date: "২২ ফেব", sehri: "০৫:০৪ AM", iftar: "০৬:০৩ PM"},
+            {day: 4, date: "২৩ ফেব", sehri: "০৫:০৩ AM", iftar: "০৬:০৩ PM"},
+            {day: 5, date: "২৪ ফেব", sehri: "০৫:০২ AM", iftar: "০৬:০৪ PM"},
+            // ... (Data can be expanded)
+        ];
+
+        // Fill table with 30 days dummy data (Since Lakshmipur times change slightly)
+        let tableBody = "";
+        for(let i=1; i<=30; i++) {
+            tableBody += `<tr class="border-b border-gray-50">
+                <td class="py-3 font-bold text-indigo-600">${i}</td>
+                <td>${i+19 > 28 ? (i-9)+' মার্চ' : (i+19)+' ফেব'}</td>
+                <td class="text-[11px]">০৫:${(6-Math.floor(i/5)).toString().padStart(2,'0')} AM</td>
+                <td class="text-[11px]">০৬:${(2+Math.floor(i/4)).toString().padStart(2,'0')} PM</td>
+            </tr>`;
+        }
+        document.getElementById('ramadan-table-body').innerHTML = tableBody;
+
+        function format12h(time) {
+            if(!time) return "--:--";
+            let [h, m] = time.split(':');
+            h = parseInt(h);
+            let ampm = h >= 12 ? 'PM' : 'AM';
+            h = h % 12 || 12;
+            return `${String(h).padStart(2, '0')}:${m} ${ampm}`;
+        }
+
+        function switchPage(id) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('page-' + id).classList.add('active');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active'));
+            document.getElementById('nav-' + id).classList.add('nav-active');
+            if(id === 'names') loadNames();
+        }
+
+        async function fetchPrayerTimes() {
+            try {
+                const res = await fetch('https://api.aladhan.com/v1/timingsByCity?city=Lakshmipur&country=Bangladesh&method=1');
+                const data = await res.json();
+                const t = data.data.timings;
+                document.getElementById('suhur-time').innerText = format12h(t.Fajr);
+                document.getElementById('iftar-time').innerText = format12h(t.Maghrib);
+                updateNextPrayer(t);
+            } catch(e) { console.log("Error"); }
+        }
+
+        function updateNextPrayer(t) {
+            const schedule = [{n:'ফজর', t:t.Fajr}, {n:'যোহর', t:t.Dhuhr}, {n:'আসর', t:t.Asr}, {n:'মাগরিব', t:t.Maghrib}, {n:'এশা', t:t.Isha}];
+            const now = new Date();
+            const currentMins = now.getHours() * 60 + now.getMinutes();
+            let next = schedule[0];
+            for(let p of schedule) {
+                const [h, m] = p.t.split(':').map(Number);
+                if((h*60 + m) > currentMins) { next = p; break; }
+            }
+            document.getElementById('next-prayer-name').innerText = next.n;
+            document.getElementById('next-prayer-time').innerText = format12h(next.t);
+        }
+
+        async function openQuran() {
+            switchPage('quran');
+            const res = await fetch('https://api.alquran.cloud/v1/surah');
+            const data = await res.json();
+            document.getElementById('surah-list').innerHTML = data.data.map(s => `
+                <div onclick="loadSurah(${s.number}, '${s.englishName}')" class="p-4 bg-white border rounded-2xl flex justify-between items-center shadow-sm">
+                    <div class="flex items-center space-x-3">
+                        <span class="w-8 h-8 bg-indigo-600 text-white rounded-lg flex items-center justify-center text-xs font-bold">${s.number}</span>
+                        <p class="font-bold text-sm">${s.englishName}</p>
+                    </div>
+                    <span class="font-arabic text-xl text-indigo-900">${s.name}</span>
+                </div>
+            `).join('');
+        }
+
+        async function loadSurah(num, name) {
+            document.getElementById('surah-detail').classList.remove('hidden');
+            document.getElementById('surah-title').innerText = name;
+            const audio = document.getElementById('surah-audio');
+            // Fixed Audio Source
+            audio.src = `https://download.quranicaudio.com/quran/mishari_rashid_al_afasy/${String(num).padStart(3, '0')}.mp3`;
+            document.getElementById('play-btn').innerHTML = '<i class="fa-solid fa-play"></i>';
+
+            const [ar, bn] = await Promise.all([
+                fetch(`https://api.alquran.cloud/v1/surah/${num}`).then(r => r.json()),
+                fetch(`https://api.alquran.cloud/v1/surah/${num}/bn.bengali`).then(r => r.json())
+            ]);
+            document.getElementById('ayats').innerHTML = ar.data.ayahs.map((a, i) => `
+                <div class="border-b border-gray-50 pb-6">
+                    <p class="font-arabic text-2xl text-slate-800 mb-2" dir="rtl">${a.text}</p>
+                    <p class="text-xs text-gray-500 text-left font-semibold">${bn.data.ayahs[i].text}</p>
+                </div>
+            `).join('');
+        }
+
+        function toggleAudio() {
+            const a = document.getElementById('surah-audio');
+            const btn = document.getElementById('play-btn');
+            if(a.paused) { a.play(); btn.innerHTML = '<i class="fa-solid fa-pause"></i>'; }
+            else { a.pause(); btn.innerHTML = '<i class="fa-solid fa-play"></i>'; }
+        }
+
+        function loadNames() {
+            fetch('https://api.aladhan.com/v1/asmaAlHusna')
+            .then(r => r.json())
+            .then(data => {
+                document.getElementById('names-grid').innerHTML = data.data.map(n => `
+                    <div class="bg-white p-4 rounded-2xl border border-indigo-50 text-center shadow-sm">
+                        <p class="font-arabic text-xl text-indigo-600">${n.name}</p>
+                        <p class="text-[10px] font-bold text-indigo-950 mt-1">${n.transliteration}</p>
+                        <p class="text-[9px] text-gray-400">${n.en.meaning}</p>
+                    </div>
+                `).join('');
+            });
+        }
+
+        function closeSurah() {
+            document.getElementById('surah-detail').classList.add('hidden');
+            document.getElementById('surah-audio').pause();
+        }
+
+        window.onload = fetchPrayerTimes;
+    </script>
+</body>
+</html>
